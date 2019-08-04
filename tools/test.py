@@ -463,11 +463,19 @@ def MultiBatchIouMeter(thrs, outputs, targets, start=None, end=None):
 def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot_enable=False, device='cpu'):
     image_files = video['image_files']
 
-    annos = [np.array(Image.open(x)) for x in video['anno_files']]
+    # annos = [np.array(Image.open(x)) for x in video['anno_files']]
+    import os
+    annos = []
+    print('Getting annotated files')
+    for x in video['anno_files']:
+        if os.path.exists(x):
+            annos.append(np.array   (Image.open(x)))
     if 'anno_init_files' in video:
         annos_init = [np.array(Image.open(x)) for x in video['anno_init_files']]
     else:
         annos_init = [annos[0]]
+
+    print('Finished getting annotated files')
 
     if not mot_enable:
         annos = [(anno > 0).astype(np.uint8) for anno in annos]
@@ -505,6 +513,7 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
                 mask = state['mask']
             toc += cv2.getTickCount() - tic
             if end_frame >= f >= start_frame:
+                # print("This fellow came here")
                 pred_masks[obj_id, f, :, :] = mask
     toc /= cv2.getTickFrequency()
 
@@ -521,12 +530,13 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
 
     if args.save_mask:
         video_path = join('test', args.dataset, 'SiamMask', video['name'])
+        print('Video path: {}'.format(video_path))
         if not isdir(video_path): makedirs(video_path)
         pred_mask_final = np.array(pred_masks)
         pred_mask_final = (np.argmax(pred_mask_final, axis=0).astype('uint8') + 1) * (
                 np.max(pred_mask_final, axis=0) > state['p'].seg_thr).astype('uint8')
         for i in range(pred_mask_final.shape[0]):
-            cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'), pred_mask_final[i].astype(np.uint8))
+            cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'), (pred_mask_final[i]*255).astype(np.uint8))
 
     if args.visualization:
         pred_mask_final = np.array(pred_masks)
