@@ -196,7 +196,6 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
     for iter, input in enumerate(train_loader):
 
         print(iter)
-        print(input)
         import numpy as np
         np.save('data_input_{}.npy'.format(iter), input)
         if epoch != iter // num_per_epoch + start_epoch:  # next epoch
