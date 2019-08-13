@@ -86,6 +86,8 @@ class SiamMask(nn.Module):
         """
         template = input['template']
         search = input['search']
+        import numpy as np
+        np.save('input.npy', input)
         if self.training:
             label_cls = input['label_cls']
             label_loc = input['label_loc']

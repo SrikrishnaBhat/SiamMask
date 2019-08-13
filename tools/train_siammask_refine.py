@@ -21,7 +21,7 @@ from utils.average_meter_helper import AverageMeter
 from datasets.siam_mask_dataset import DataSets
 
 from utils.lr_helper import build_lr_scheduler
-from tensorboard import SummaryWriter
+from tensorboardX import SummaryWriter
 
 from utils.config_helper import load_config
 from torch.utils.collect_env import get_pretty_env_info
@@ -289,6 +289,7 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
                         rpn_mask_loss=avg.rpn_mask_loss, siammask_loss=avg.siammask_loss, mask_iou_mean=avg.mask_iou_mean,
                         mask_iou_at_5=avg.mask_iou_at_5,mask_iou_at_7=avg.mask_iou_at_7))
             print_speed(iter + 1, avg.batch_time.avg, args.epochs * num_per_epoch)
+        break
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth', best_file='model_best.pth'):
