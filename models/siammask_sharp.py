@@ -93,6 +93,9 @@ class SiamMask(nn.Module):
             label_mask = input['label_mask']
             label_mask_weight = input['label_mask_weight']
 
+        print('Template type: {}'.format(type(template)))
+        print('Search type: {}'.format(type(search)))
+
         rpn_pred_cls, rpn_pred_loc, rpn_pred_mask, template_feature, search_feature = \
             self.run(template, search, softmax=self.training)
 

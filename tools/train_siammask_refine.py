@@ -21,7 +21,7 @@ from utils.average_meter_helper import AverageMeter
 from datasets.siam_mask_dataset import DataSets
 
 from utils.lr_helper import build_lr_scheduler
-from tensorboardX import SummaryWriter
+from tensorboard import SummaryWriter
 
 from utils.config_helper import load_config
 from torch.utils.collect_env import get_pretty_env_info
@@ -195,9 +195,6 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
     epoch = epoch
     for iter, input in enumerate(train_loader):
 
-        print(iter)
-        import numpy as np
-        np.save('data_input_{}.npy'.format(iter), input)
         if epoch != iter // num_per_epoch + start_epoch:  # next epoch
             epoch = iter // num_per_epoch + start_epoch
 
