@@ -21,7 +21,7 @@ from utils.average_meter_helper import AverageMeter
 from datasets.siam_mask_dataset import DataSets
 
 from utils.lr_helper import build_lr_scheduler
-from tensorboardX import SummaryWriter
+from tensorboard import SummaryWriter
 
 from utils.config_helper import load_config
 from torch.utils.collect_env import get_pretty_env_info
