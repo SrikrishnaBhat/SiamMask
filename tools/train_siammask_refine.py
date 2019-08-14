@@ -239,16 +239,34 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
             'label_loc_weight': torch.autograd.Variable(input[4]).cuda(),
             'label_mask': torch.autograd.Variable(input[6]).cuda(),
             'label_mask_weight': torch.autograd.Variable(input[7]).cuda(),
+            'reverse_template': torch.autograd.Variable(input[9]).cuda(),
+            'reverse_search': torch.autograd.Variable(input[10]).cuda(),
+            'reverse_label_cls': torch.autograd.Variable(input[11]).cuda(),
+            'reverse_label_loc': torch.autograd.Variable(input[12]).cuda(),
+            'reverse_label_loc_weight': torch.autograd.Variable(input[13]).cuda(),
+            'reverse_label_mask': torch.autograd.Variable(input[14]).cuda(),
+            'reverse_label_mask_weight': torch.autograd.Variable(input[15]).cuda(),
         }
 
         outputs = model(x)
 
         rpn_cls_loss, rpn_loc_loss, rpn_mask_loss = torch.mean(outputs['losses'][0]), torch.mean(outputs['losses'][1]), torch.mean(outputs['losses'][2])
-        mask_iou_mean, mask_iou_at_5, mask_iou_at_7 = torch.mean(outputs['accuracy'][0]), torch.mean(outputs['accuracy'][1]), torch.mean(outputs['accuracy'][2])
+        rpn_reverse_cls_loss, rpn_reverse_loc_loss, rpn_reverse_mask_loss = \
+            torch.mean(outputs['losses'][4]), torch.mean(
+            outputs['losses'][5]), torch.mean(outputs['losses'][6])
+        mask_iou_mean, mask_iou_at_5, mask_iou_at_7 = torch.mean(outputs['accuracy'][0]), \
+                                                      torch.mean(outputs['accuracy'][1]), \
+                                                      torch.mean(outputs['accuracy'][2])
+
+        reverse_mask_iou_mean, reverse_mask_iou_at_5, reverse_mask_iou_at_7 = torch.mean(outputs['accuracy'][3]), \
+                                                      torch.mean(outputs['accuracy'][4]), \
+                                                      torch.mean(outputs['accuracy'][5])
 
         cls_weight, reg_weight, mask_weight = cfg['loss']['weight']
 
-        loss = rpn_cls_loss * cls_weight + rpn_loc_loss * reg_weight + rpn_mask_loss * mask_weight
+        loss = (rpn_cls_loss + rpn_reverse_cls_loss)* cls_weight + \
+               (rpn_loc_loss + rpn_reverse_loc_loss)* reg_weight + \
+               (rpn_mask_loss + rpn_reverse_mask_loss)* mask_weight
 
         optimizer.zero_grad()
         loss.backward()
@@ -268,9 +286,27 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
 
         batch_time = time.time() - end
 
-        avg.update(batch_time=batch_time, rpn_cls_loss=rpn_cls_loss, rpn_loc_loss=rpn_loc_loss,
-                   rpn_mask_loss=rpn_mask_loss, siammask_loss=siammask_loss,
-                   mask_iou_mean=mask_iou_mean, mask_iou_at_5=mask_iou_at_5, mask_iou_at_7=mask_iou_at_7)
+        avg_update_args = {
+            'batch_time': batch_time,
+            'rpn_cls_loss': rpn_cls_loss,
+            'rpn_reverse_cls_loss': rpn_reverse_cls_loss,
+            'rpn_loc_loss': rpn_loc_loss,
+            'rpn_reverse_loc_loss': rpn_reverse_loc_loss,
+            'rpn_mask_loss': rpn_mask_loss,
+            'rpn_reverse_mask_loss': rpn_reverse_mask_loss,
+            'siammask_loss': siammask_loss,
+            'mask_iou_mean': mask_iou_mean,
+            'reverse_mask_iou_mean': reverse_mask_iou_mean,
+            'mask_iou_at_5': mask_iou_at_5,
+            'reverse_mask_iou_at_5': reverse_mask_iou_at_5,
+            'mask_iou_at_7': mask_iou_at_7,
+            'reverse_mask_iou_at_7': reverse_mask_iou_at_7
+        }
+
+        # avg.update(batch_time=batch_time, rpn_cls_loss=rpn_cls_loss, rpn_loc_loss=rpn_loc_loss,
+        #            rpn_mask_loss=rpn_mask_loss, siammask_loss=siammask_loss,
+        #            mask_iou_mean=mask_iou_mean, mask_iou_at_5=mask_iou_at_5, mask_iou_at_7=mask_iou_at_7)
+        avg.update(**avg_update_args)
 
         tb_writer.add_scalar('loss/cls', rpn_cls_loss, tb_index)
         tb_writer.add_scalar('loss/loc', rpn_loc_loss, tb_index)
@@ -278,6 +314,12 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
         tb_writer.add_scalar('mask/mIoU', mask_iou_mean, tb_index)
         tb_writer.add_scalar('mask/AP@.5', mask_iou_at_5, tb_index)
         tb_writer.add_scalar('mask/AP@.7', mask_iou_at_7, tb_index)
+        tb_writer.add_scalar('loss/reverse_cls', rpn_reverse_cls_loss, tb_index)
+        tb_writer.add_scalar('loss/reverse_loc', rpn_reverse_loc_loss, tb_index)
+        tb_writer.add_scalar('loss/reverse_mask', rpn_reverse_mask_loss, tb_index)
+        tb_writer.add_scalar('mask/reverse_mIoU', reverse_mask_iou_mean, tb_index)
+        tb_writer.add_scalar('mask/reverse_AP@.5', reverse_mask_iou_at_5, tb_index)
+        tb_writer.add_scalar('mask/reverse_AP@.7', reverse_mask_iou_at_7, tb_index)
         end = time.time()
 
         if (iter + 1) % args.print_freq == 0:

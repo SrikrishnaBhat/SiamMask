@@ -531,6 +531,8 @@ class DataSets(Dataset):
                 search = random.choice(self.all_data).get_random_target()
         else:
             template, search = dataset.get_positive_pair(index)
+            reverse_template = template
+            reverse_search = search
 
         def center_crop(img, size):
             shape = img.shape[1]
@@ -541,20 +543,27 @@ class DataSets(Dataset):
             return img[l:r, l:r]
 
         template_image, scale_z = self.imread(template[0])
+        reverse_template_image, scale_z_r = self.imread(reverse_template[0])
 
         if self.template_small:
             template_image = center_crop(template_image, self.template_size)
+            reverse_template_image = center_crop(reverse_template_image, self.template_size)
 
         search_image, scale_x = self.imread(search[0])
+        reverse_search_image, scale_x_r = self.imread(reverse_search[0])
 
         if dataset.has_mask and not neg:
             search_mask = (cv2.imread(search[2], 0) > 0).astype(np.float32)
+            reverse_search_mask = (cv2.imread(reverse_search[2], 0) > 0).astype(np.float32)
         else:
             search_mask = np.zeros(search_image.shape[:2], dtype=np.float32)
+            reverse_search_mask = np.zeros(search_image.shape[:2], dtype=np.float32)
 
         if self.crop_size > 0:
             search_image = center_crop(search_image, self.crop_size)
+            reverse_search_image = center_crop(reverse_search_image, self.crop_size)
             search_mask = center_crop(search_mask, self.crop_size)
+            reverse_search_mask = center_crop(reverse_search_mask, self.crop_size)
 
         def toBBox(image, shape):
             imh, imw = image.shape[:2]
@@ -575,10 +584,21 @@ class DataSets(Dataset):
             return bbox
 
         template_box = toBBox(template_image, template[1])
+        reverse_template_box = toBBox(reverse_template_image, reverse_template[1])
         search_box = toBBox(search_image, search[1])
+        reverse_search_box = toBBox(reverse_search_image, reverse_search[1])
 
         template, _, _ = self.template_aug(template_image, template_box, self.template_size, gray=gray)
+        reverse_template, _, _ = self.template_aug(reverse_template_image,
+                                                   reverse_template_box,
+                                                   self.template_size,
+                                                   gray=gray)
         search, bbox, mask = self.search_aug(search_image, search_box, self.search_size, gray=gray, mask=search_mask)
+        reverse_search, reverse_bbox, reverse_mask = self.search_aug(reverse_search_image,
+                                                                     reverse_search_box,
+                                                                     self.search_size,
+                                                                     gray=gray,
+                                                                     mask=reverse_search_mask)
 
         def draw(image, box, name):
             image = image.copy()
@@ -588,20 +608,36 @@ class DataSets(Dataset):
 
         if debug:
             draw(template_image, template_box, "debug/{:06d}_ot.jpg".format(index))
+            draw(reverse_template_image, reverse_template_box, "debug/{:06d}_ot.jpg".format(index))
             draw(search_image, search_box, "debug/{:06d}_os.jpg".format(index))
+            draw(reverse_search_image, reverse_search_box, "debug/{:06d}_os.jpg".format(index))
             draw(template, _, "debug/{:06d}_t.jpg".format(index))
+            draw(reverse_template, _, "debug/{:06d}_t.jpg".format(index))
             draw(search, bbox, "debug/{:06d}_s.jpg".format(index))
+            draw(reverse_search, reverse_bbox, "debug/{:06d}_s.jpg".format(index))
 
         cls, delta, delta_weight = self.anchor_target(self.anchors, bbox, self.size, neg)
+        reverse_cls, reverse_delta, reverse_delta_weight = self.anchor_target(self.anchors,
+                                                                              reverse_bbox,
+                                                                              self.size,
+                                                                              neg)
         if dataset.has_mask and not neg:
             mask_weight = cls.max(axis=0, keepdims=True)
+            reverse_mask_weight = reverse_cls.max(axis=0, keepdims=True)
         else:
             mask_weight = np.zeros([1, cls.shape[1], cls.shape[2]], dtype=np.float32)
+            reverse_mask_weight = np.zeros([1, reverse_cls.shape[1], reverse_cls.shape[2]], dtype=np.float32)
 
         template, search = map(lambda x: np.transpose(x, (2, 0, 1)).astype(np.float32), [template, search])
+        reverse_template, reverse_search = map(lambda x: np.transpose(x, (2, 0, 1)).astype(np.float32),
+                                               [reverse_template, reverse_search])
         
         mask = (np.expand_dims(mask, axis=0) > 0.5) * 2 - 1  # 1*H*W
+        reverse_mask = (np.expand_dims(reverse_mask, axis=0) > 0.5) * 2 - 1  # 1*H*W
 
         return template, search, cls, delta, delta_weight, np.array(bbox, np.float32), \
-               np.array(mask, np.float32), np.array(mask_weight, np.float32)
+               np.array(mask, np.float32), np.array(mask_weight, np.float32), \
+               reverse_template, reverse_search, reverse_delta, reverse_delta_weight, \
+               np.array(reverse_bbox, np.float32), np.array(reverse_mask, np.float32), \
+               np.array(reverse_mask_weight, np.float32)
 
