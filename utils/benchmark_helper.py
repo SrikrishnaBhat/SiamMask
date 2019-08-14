@@ -68,6 +68,8 @@ def load_dataset(dataset):
     elif 'ytb_vos' in dataset:
         base_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'valid')
         json_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'valid', 'meta.json')
+        # base_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'train')
+        # json_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'train', 'meta.json')
         meta = json.load(open(json_path, 'r'))
         meta = meta['videos']
         info = dict()

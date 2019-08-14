@@ -80,10 +80,14 @@ def build_data_loader(cfg):
 
     train_set = DataSets(cfg['train_datasets'], cfg['anchors'], args.epochs)
     train_set.shuffle()
+    print(cfg['train_datasets'])
 
     logger.info("build val dataset")  # val_dataset
     if not 'val_datasets' in cfg.keys():
+        print('building val dataset')
         cfg['val_datasets'] = cfg['train_datasets']
+    else:
+        cfg['val_datasets']
     val_set = DataSets(cfg['val_datasets'], cfg['anchors'])
     val_set.shuffle()
 
@@ -134,11 +138,6 @@ def main():
 
     # build dataset
     train_loader, val_loader = build_data_loader(cfg)
-
-def BNtoFixed(m):
-    class_name = m.__class__.__name__
-    if class_name.find('BatchNorm') != -1:
-        m.eval()
 
 
 if __name__ == '__main__':
