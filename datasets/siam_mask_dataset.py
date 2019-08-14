@@ -637,7 +637,7 @@ class DataSets(Dataset):
 
         return template, search, cls, delta, delta_weight, np.array(bbox, np.float32), \
                np.array(mask, np.float32), np.array(mask_weight, np.float32), \
-               reverse_template, reverse_search, reverse_delta, reverse_delta_weight, \
+               reverse_template, reverse_search, reverse_cls, reverse_delta, reverse_delta_weight, \
                np.array(reverse_bbox, np.float32), np.array(reverse_mask, np.float32), \
                np.array(reverse_mask_weight, np.float32)
 
