@@ -533,8 +533,6 @@ class DataSets(Dataset):
             template, search = dataset.get_positive_pair(index)
             reverse_template = template
             reverse_search = search
-            print('template: {}'.format(template))
-            print('search: {}'.format(search))
 
         def center_crop(img, size):
             shape = img.shape[1]

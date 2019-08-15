@@ -100,13 +100,6 @@ class SiamMask(nn.Module):
         #     reverse_label_mask = input['reverse_label_mask']
         #     reverse_label_mask_weight = input['reverse_label_mask_weight']
 
-        print('Template type: {}'.format(type(template)))
-        print('Search type: {}'.format(type(search)))
-
-        print('Template shape: {}'.format(template.shape))
-        print('Search shape: {}'.format(search.shape))
-        print('Reverse template shape: {}'.format(reverse_template.shape))
-        print('Reverse search shape: {}'.format(reverse_search.shape))
         rpn_pred_cls, rpn_pred_loc, rpn_pred_mask, template_feature, search_feature = \
             self.run(template, search, softmax=self.training)
         rpn_reverse_pred_cls, rpn_reverse_pred_loc, rpn_reverse_pred_mask, reverse_template_feature, \

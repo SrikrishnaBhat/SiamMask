@@ -252,8 +252,8 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
 
         rpn_cls_loss, rpn_loc_loss, rpn_mask_loss = torch.mean(outputs['losses'][0]), torch.mean(outputs['losses'][1]), torch.mean(outputs['losses'][2])
         rpn_reverse_cls_loss, rpn_reverse_loc_loss, rpn_reverse_mask_loss = \
-            torch.mean(outputs['losses'][4]), torch.mean(
-            outputs['losses'][5]), torch.mean(outputs['losses'][6])
+            torch.mean(outputs['losses'][3]), torch.mean(
+            outputs['losses'][4]), torch.mean(outputs['losses'][5])
         mask_iou_mean, mask_iou_at_5, mask_iou_at_7 = torch.mean(outputs['accuracy'][0]), \
                                                       torch.mean(outputs['accuracy'][1]), \
                                                       torch.mean(outputs['accuracy'][2])
