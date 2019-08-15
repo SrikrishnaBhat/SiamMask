@@ -531,8 +531,8 @@ class DataSets(Dataset):
                 search = random.choice(self.all_data).get_random_target()
         else:
             template, search = dataset.get_positive_pair(index)
-            reverse_template = template
-            reverse_search = search
+            reverse_template = template.copy()
+            reverse_search = search.copy()
 
         def center_crop(img, size):
             shape = img.shape[1]
@@ -557,7 +557,7 @@ class DataSets(Dataset):
             reverse_search_mask = (cv2.imread(reverse_search[2], 0) > 0).astype(np.float32)
         else:
             search_mask = np.zeros(search_image.shape[:2], dtype=np.float32)
-            reverse_search_mask = np.zeros(search_image.shape[:2], dtype=np.float32)
+            reverse_search_mask = np.zeros(reverse_search_image.shape[:2], dtype=np.float32)
 
         if self.crop_size > 0:
             search_image = center_crop(search_image, self.crop_size)
