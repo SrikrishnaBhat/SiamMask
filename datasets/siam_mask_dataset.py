@@ -531,8 +531,10 @@ class DataSets(Dataset):
                 search = random.choice(self.all_data).get_random_target()
         else:
             template, search = dataset.get_positive_pair(index)
-            reverse_template = template.copy()
-            reverse_search = search.copy()
+            reverse_template = template
+            reverse_search = search
+            print('template: {}'.format(template))
+            print('search: {}'.format(search))
 
         def center_crop(img, size):
             shape = img.shape[1]
