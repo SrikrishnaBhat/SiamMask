@@ -86,63 +86,26 @@ class SiamMask(nn.Module):
         """
         template = input['template']
         search = input['search']
-        reverse_template = input['template']
-        reverse_search = input['reverse_search']
-        # if self.training:
-        #     label_cls = input['label_cls']
-        #     label_loc = input['label_loc']
-        #     lable_loc_weight = input['label_loc_weight']
-        #     label_mask = input['label_mask']
-        #     label_mask_weight = input['label_mask_weight']
-        #     reverse_label_cls = input['reverse_label_cls']
-        #     reverse_label_loc = input['reverse_label_loc']
-        #     reverse_lable_loc_weight = input['reverse_label_loc_weight']
-        #     reverse_label_mask = input['reverse_label_mask']
-        #     reverse_label_mask_weight = input['reverse_label_mask_weight']
+        if self.training:
+            label_cls = input['label_cls']
+            label_loc = input['label_loc']
+            lable_loc_weight = input['label_loc_weight']
+            label_mask = input['label_mask']
+            label_mask_weight = input['label_mask_weight']
 
         rpn_pred_cls, rpn_pred_loc, rpn_pred_mask, template_feature, search_feature = \
             self.run(template, search, softmax=self.training)
-        rpn_reverse_pred_cls, rpn_reverse_pred_loc, rpn_reverse_pred_mask, reverse_template_feature, \
-            reverse_search_feature = self.run(reverse_template, reverse_search, softmax=self.training)
 
         outputs = dict()
 
         outputs['predict'] = [rpn_pred_loc, rpn_pred_cls, rpn_pred_mask, template_feature, search_feature]
 
         if self.training:
-            # Added by me
-            label_cls = input['label_cls']
-            label_loc = input['label_loc']
-            lable_loc_weight = input['label_loc_weight']
-            label_mask = input['label_mask']
-            label_mask_weight = input['label_mask_weight']
-            reverse_label_cls = input['reverse_label_cls']
-            reverse_label_loc = input['reverse_label_loc']
-            reverse_lable_loc_weight = input['reverse_label_loc_weight']
-            reverse_label_mask = input['reverse_label_mask']
-            reverse_label_mask_weight = input['reverse_label_mask_weight']
-            outputs['reverse_predict'] = [rpn_reverse_pred_loc,
-                                          rpn_reverse_pred_cls,
-                                          rpn_reverse_pred_mask,
-                                          reverse_template_feature, reverse_search_feature]
-
-            # Original
             rpn_loss_cls, rpn_loss_loc, rpn_loss_mask, iou_acc_mean, iou_acc_5, iou_acc_7 = \
                 self._add_rpn_loss(label_cls, label_loc, lable_loc_weight, label_mask, label_mask_weight,
                                    rpn_pred_cls, rpn_pred_loc, rpn_pred_mask)
-            rpn_reverse_loss_cls, rpn_reverse_loss_loc, rpn_reveres_loss_mask, iou_reverse_acc_mean, \
-            iou_reverse_acc_5, iou_reverse_acc_7 = self._add_rpn_loss(reverse_label_cls,
-                                                                      reverse_label_loc,
-                                                                      reverse_lable_loc_weight,
-                                                                      reverse_label_mask,
-                                                                      reverse_label_mask_weight,
-                                                                      rpn_reverse_pred_cls,
-                                                                      rpn_reverse_pred_loc,
-                                                                      rpn_reverse_pred_mask)
-            outputs['losses'] = [rpn_loss_cls, rpn_loss_loc, rpn_loss_mask,
-                                 rpn_reverse_loss_cls, rpn_reverse_loss_loc, rpn_reveres_loss_mask]
-            outputs['accuracy'] = [iou_acc_mean, iou_acc_5, iou_acc_7,
-                                   iou_reverse_acc_mean, iou_reverse_acc_5, iou_reverse_acc_7]
+            outputs['losses'] = [rpn_loss_cls, rpn_loss_loc, rpn_loss_mask]
+            outputs['accuracy'] = [iou_acc_mean, iou_acc_5, iou_acc_7]
 
         return outputs
 

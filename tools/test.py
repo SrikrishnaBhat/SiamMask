@@ -29,10 +29,6 @@ from utils.pyvotkit.region import vot_overlap, vot_float2str
 
 thrs = np.arange(0.3, 0.5, 0.05)
 
-print('Before change: {}'.format(dataset_zoo))
-dataset_zoo = ['coco', 'det', 'tennis', 'vid', 'ytb_vos']
-print('After change: {}'.format(dataset_zoo))
-
 parser = argparse.ArgumentParser(description='Test SiamMask')
 parser.add_argument('--arch', dest='arch', default='', choices=['Custom',],
                     help='architecture of pretrained model')
