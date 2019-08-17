@@ -196,9 +196,13 @@ def weight_l1_loss(pred_loc, label_loc, loss_weight):
     """
     b, _, sh, sw = pred_loc.size()
     pred_loc = pred_loc.view(b, 4, -1, sh, sw)
+    print('pred_loc shape: {}'.format(pred_loc.shape))
     diff = (pred_loc - label_loc).abs()
+    print('diff shape: {}'.format(diff.shape))
     diff = diff.sum(dim=1).view(b, -1, sh, sw)
+    print('diff shape: {}'.format(diff.shape))
     loss = diff * loss_weight
+    print('loss shape: {}'.format(loss.shape))
     return loss.sum().div(b)
 
 
