@@ -51,6 +51,7 @@ parser.add_argument('--gt', action='store_true', help='whether use gt rect for d
 parser.add_argument('--video', default='', type=str, help='test special video')
 parser.add_argument('--cpu', action='store_true', help='cpu mode')
 parser.add_argument('--debug', action='store_true', help='debug mode')
+parser.add_argument('--eval', action=True, help='Perform evaluation if true else just store masks')
 
 
 def to_torch(ndarray):
@@ -469,9 +470,10 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
     print('Getting annotated files')
     for x in video['anno_files']:
         if os.path.exists(x):
-            annos.append(np.array   (Image.open(x)))
+            annos.append(np.array(Image.open(x)))
     if 'anno_init_files' in video:
         annos_init = [np.array(Image.open(x)) for x in video['anno_init_files']]
+        print(annos_init)
     else:
         annos_init = [annos[0]]
 
@@ -517,7 +519,7 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
                 pred_masks[obj_id, f, :, :] = mask
     toc /= cv2.getTickFrequency()
 
-    if len(annos) == len(image_files):
+    if len(annos) == len(image_files) and args.eval:
         multi_mean_iou = MultiBatchIouMeter(thrs, pred_masks, annos,
                                             start=video['start_frame'] if 'start_frame' in video else None,
                                             end=video['end_frame'] if 'end_frame' in video else None)

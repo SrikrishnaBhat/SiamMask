@@ -102,6 +102,11 @@ class SiamMask(nn.Module):
 
         rpn_pred_cls, rpn_pred_loc, rpn_pred_mask, template_feature, search_feature = \
             self.run(template, search, softmax=self.training)
+        print('template shape: {}'.format(template))
+        print('search shape: {}'.format(search))
+        print('rpn_pred_cls shape: {}'.format(rpn_pred_cls))
+        print('rpn_pred_loc shape: {}'.format(rpn_pred_loc))
+        print('rpn_pred_mask shape: {}'.format(rpn_pred_mask))
         rpn_reverse_pred_cls, rpn_reverse_pred_loc, rpn_reverse_pred_mask, reverse_template_feature, \
             reverse_search_feature = self.run(reverse_template, reverse_search, softmax=self.training)
 
