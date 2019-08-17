@@ -102,11 +102,6 @@ class SiamMask(nn.Module):
 
         rpn_pred_cls, rpn_pred_loc, rpn_pred_mask, template_feature, search_feature = \
             self.run(template, search, softmax=self.training)
-        print('template shape: {}'.format(template.shape))
-        print('search shape: {}'.format(search.shape))
-        print('rpn_pred_cls shape: {}'.format(rpn_pred_cls.shape))
-        print('rpn_pred_loc shape: {}'.format(rpn_pred_loc.shape))
-        print('rpn_pred_mask shape: {}'.format(rpn_pred_mask.shape))
         rpn_reverse_pred_cls, rpn_reverse_pred_loc, rpn_reverse_pred_mask, reverse_template_feature, \
             reverse_search_feature = self.run(reverse_template, reverse_search, softmax=self.training)
 
@@ -130,6 +125,15 @@ class SiamMask(nn.Module):
                                           rpn_reverse_pred_cls,
                                           rpn_reverse_pred_mask,
                                           reverse_template_feature, reverse_search_feature]
+            print('template shape: {}'.format(template.shape))
+            print('search shape: {}'.format(search.shape))
+            print('rpn_pred_cls shape: {}'.format(rpn_pred_cls.shape))
+            print('rpn_pred_loc shape: {}'.format(rpn_pred_loc.shape))
+            print('rpn_pred_mask shape: {}'.format(rpn_pred_mask.shape))
+            print('label_cls shape: {}'.format(label_cls.shape))
+            print('label_loc shape: {}'.format(lable_loc_weight.shape))
+            print('label_mask shape: {}'.format(label_mask.shape))
+            print('label_mask_weight shape: {}'.format(label_mask_weight.shape))
 
             # Original
             rpn_loss_cls, rpn_loss_loc, rpn_loss_mask, iou_acc_mean, iou_acc_5, iou_acc_7 = \

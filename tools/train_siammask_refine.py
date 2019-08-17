@@ -332,6 +332,8 @@ def train(train_loader, model, optimizer, lr_scheduler, epoch, cfg):
                         mask_iou_at_5=avg.mask_iou_at_5,mask_iou_at_7=avg.mask_iou_at_7))
             print_speed(iter + 1, avg.batch_time.avg, args.epochs * num_per_epoch)
 
+        break
+
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth', best_file='model_best.pth'):
     torch.save(state, filename)
