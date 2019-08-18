@@ -19,5 +19,6 @@ CUDA_VISIBLE_DEVICES=$gpu python -u $ROOT/tools/test.py \
     --config $config \
     --resume $model \
     --mask --refine \
+    --save_mask \
     --dataset $dataset 2>&1 | tee logs/test_$dataset.log
 
