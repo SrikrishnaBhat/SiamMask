@@ -513,16 +513,16 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
                 pred_masks[obj_id, f, :, :] = mask
     toc /= cv2.getTickFrequency()
 
-    if len(annos) == len(image_files):
-        multi_mean_iou = MultiBatchIouMeter(thrs, pred_masks, annos,
-                                            start=video['start_frame'] if 'start_frame' in video else None,
-                                            end=video['end_frame'] if 'end_frame' in video else None)
-        for i in range(object_num):
-            for j, thr in enumerate(thrs):
-                logger.info('Fusion Multi Object{:20s} IOU at {:.2f}: {:.4f}'.format(video['name'] + '_' + str(i + 1), thr,
-                                                                           multi_mean_iou[i, j]))
-    else:
-        multi_mean_iou = []
+    # if len(annos) == len(image_files):
+    #     multi_mean_iou = MultiBatchIouMeter(thrs, pred_masks, annos,
+    #                                         start=video['start_frame'] if 'start_frame' in video else None,
+    #                                         end=video['end_frame'] if 'end_frame' in video else None)
+    #     for i in range(object_num):
+    #         for j, thr in enumerate(thrs):
+    #             logger.info('Fusion Multi Object{:20s} IOU at {:.2f}: {:.4f}'.format(video['name'] + '_' + str(i + 1), thr,
+    #                                                                        multi_mean_iou[i, j]))
+    # else:
+    multi_mean_iou = []
 
     if args.save_mask:
         video_path = join('test', args.dataset, 'SiamMask', video['name'])
@@ -586,9 +586,9 @@ def main():
     else:
         vos_enable = False
 
-    total_lost = 0  # VOT
-    iou_lists = []  # VOS
-    speed_list = []
+    # total_lost = 0  # VOT
+    # iou_lists = []  # VOS
+    # speed_list = []
 
     for v_id, video in enumerate(dataset.keys(), start=1):
         if args.video != '' and video != args.video:
@@ -597,21 +597,21 @@ def main():
         if vos_enable:
             iou_list, speed = track_vos(model, dataset[video], cfg['hp'] if 'hp' in cfg.keys() else None,
                                  args.mask, args.refine, args.dataset in ['DAVIS2017', 'ytb_vos'], device=device)
-            iou_lists.append(iou_list)
+            # iou_lists.append(iou_list)
         else:
             lost, speed = track_vot(model, dataset[video], cfg['hp'] if 'hp' in cfg.keys() else None,
                              args.mask, args.refine, device=device)
             total_lost += lost
-        speed_list.append(speed)
+        # speed_list.append(speed)
 
     # report final result
-    if vos_enable:
-        for thr, iou in zip(thrs, np.mean(np.concatenate(iou_lists), axis=0)):
-            logger.info('Segmentation Threshold {:.2f} mIoU: {:.3f}'.format(thr, iou))
-    else:
-        logger.info('Total Lost: {:d}'.format(total_lost))
+    # if vos_enable:
+    #     for thr, iou in zip(thrs, np.mean(np.concatenate(iou_lists), axis=0)):
+    #         logger.info('Segmentation Threshold {:.2f} mIoU: {:.3f}'.format(thr, iou))
+    # else:
+    #     logger.info('Total Lost: {:d}'.format(total_lost))
 
-    logger.info('Mean Speed: {:.2f} FPS'.format(np.mean(speed_list)))
+    # logger.info('Mean Speed: {:.2f} FPS'.format(np.mean(speed_list)))
 
 
 if __name__ == '__main__':
