@@ -597,6 +597,7 @@ class DataSets(Dataset):
                                                    reverse_template_box,
                                                    self.template_size,
                                                    gray=gray)
+        print('Template shape after transform: {}'.format(template.shape))
         search, bbox, mask = self.search_aug(search_image, search_box, self.search_size, gray=gray, mask=search_mask)
         reverse_search, reverse_bbox, reverse_mask = self.search_aug(reverse_search_image,
                                                                      reverse_search_box,
