@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from utils.anchors import Anchors
+from utils.bbox_helper import Center, Corner
+import numpy as np
 
 
 class SiamMask(nn.Module):
@@ -95,7 +97,7 @@ class SiamMask(nn.Module):
         search = input['search']
         reverse_template = input['template']
         reverse_search = input['reverse_search']
-        print('Template type: {}'.format(template))
+
         # if self.training:
         #     label_cls = input['label_cls']
         #     label_loc = input['label_loc']
@@ -142,6 +144,40 @@ class SiamMask(nn.Module):
             print('label_loc shape: {}'.format(lable_loc_weight.shape))
             print('label_mask shape: {}'.format(label_mask.shape))
             print('label_mask_weight shape: {}'.format(label_mask_weight.shape))
+
+            def center2corner(center):
+                """
+                :param center: Center or np.array 4*N
+                :return: Corner or np.array 4*N
+                """
+                if isinstance(center, Center):
+                    x, y, w, h = center
+                    return Corner(x - w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5)
+                else:
+                    x, y, w, h = center[0], center[1], center[2], center[3]
+                    x1 = x - w * 0.5
+                    y1 = y - h * 0.5
+                    x2 = x + w * 0.5
+                    y2 = y + h * 0.5
+                    return x1, y1, x2, y2
+
+            def toBBox(image, shape):
+                imh, imw = image.shape[:2]
+                if len(shape) == 4:
+                    w, h = shape[2] - shape[0], shape[3] - shape[1]
+                else:
+                    w, h = shape
+                context_amount = 0.5
+                exemplar_size = self.template_size  # 127
+                wc_z = w + context_amount * (w + h)
+                hc_z = h + context_amount * (w + h)
+                s_z = np.sqrt(wc_z * hc_z)
+                scale_z = exemplar_size / s_z
+                w = w * scale_z
+                h = h * scale_z
+                cx, cy = imw // 2, imh // 2
+                bbox = center2corner(Center(cx, cy, w, h))
+                return bbox
 
             # Original
             rpn_loss_cls, rpn_loss_loc, rpn_loss_mask, iou_acc_mean, iou_acc_5, iou_acc_7 = \

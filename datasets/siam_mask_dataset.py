@@ -566,6 +566,8 @@ class DataSets(Dataset):
             reverse_search_mask = center_crop(reverse_search_mask, self.crop_size)
 
         def toBBox(image, shape):
+            print('template_shape: {}'.format(shape))
+            print('Image shape: {}'.format(image.shape))
             imh, imw = image.shape[:2]
             if len(shape) == 4:
                 w, h = shape[2]-shape[0], shape[3]-shape[1]
