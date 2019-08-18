@@ -586,6 +586,7 @@ class DataSets(Dataset):
             return bbox
 
         template_box = toBBox(template_image, template[1])
+        print('Template box: {}'.format(template_box))
         reverse_template_box = toBBox(reverse_template_image, reverse_template[1])
         search_box = toBBox(search_image, search[1])
         reverse_search_box = toBBox(reverse_search_image, reverse_search[1])

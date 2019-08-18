@@ -183,6 +183,7 @@ class SiamMask(nn.Module):
             rpn_loss_cls, rpn_loss_loc, rpn_loss_mask, iou_acc_mean, iou_acc_5, iou_acc_7 = \
                 self._add_rpn_loss(label_cls, label_loc, lable_loc_weight, label_mask, label_mask_weight,
                                    rpn_pred_cls, rpn_pred_loc, rpn_pred_mask)
+
             rpn_reverse_loss_cls, rpn_reverse_loss_loc, rpn_reveres_loss_mask, iou_reverse_acc_mean, \
             iou_reverse_acc_5, iou_reverse_acc_7 = self._add_rpn_loss(reverse_label_cls,
                                                                       reverse_label_loc,
