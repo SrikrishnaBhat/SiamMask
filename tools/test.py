@@ -51,6 +51,7 @@ parser.add_argument('--gt', action='store_true', help='whether use gt rect for d
 parser.add_argument('--video', default='', type=str, help='test special video')
 parser.add_argument('--cpu', action='store_true', help='cpu mode')
 parser.add_argument('--debug', action='store_true', help='debug mode')
+parser.add_argument('--dir_type', default='valid',type='str', help='ytb_vos data directory')
 
 
 def to_torch(ndarray):
@@ -582,7 +583,7 @@ def main():
     device = torch.device('cuda' if (torch.cuda.is_available() and not args.cpu) else 'cpu')
     model = model.to(device)
     # setup dataset
-    dataset = load_dataset(args.dataset)
+    dataset = load_dataset(args.dataset, args.dir_type)
 
     # VOS or VOT?
     if args.dataset in ['DAVIS2016', 'DAVIS2017', 'ytb_vos'] and args.mask:

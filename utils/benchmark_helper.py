@@ -32,7 +32,7 @@ def get_dataset_zoo():
 dataset_zoo = get_dataset_zoo()
 
 
-def load_dataset(dataset):
+def load_dataset(dataset, dir_type='valid'):
     info = OrderedDict()
     if 'VOT' in dataset:
         base_path = join(realpath(dirname(__file__)), '../data', dataset)
@@ -66,8 +66,10 @@ def load_dataset(dataset):
             info[video]['image_files'] = sorted(glob.glob(join(base_path, 'JPEGImages/480p', video, '*.jpg')))
             info[video]['name'] = video
     elif 'ytb_vos' in dataset:
-        base_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'valid')
-        json_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'valid', 'meta.json')
+        # base_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'valid')
+        base_path = join(realpath(dirname(__file__)), '../data', 'ytb_vos', dir_type)
+        json_path = join(base_path, 'meta.json')
+        #join(realpath(dirname(__file__)), '../data', 'ytb_vos', 'valid', 'meta.json')
         meta = json.load(open(json_path, 'r'))
         meta = meta['videos']
         info = dict()
