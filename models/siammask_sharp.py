@@ -75,6 +75,13 @@ class SiamMask(nn.Module):
         cls = F.log_softmax(cls, dim=4)
         return cls
 
+    def get_best_loc(self, pred_loc, label_loc):
+        b, _, sh, sw = pred_loc.size()
+        pred_loc = pred_loc.view(b, 4, -1, sh, sw)
+        diff = (pred_loc - label_loc).abs()
+
+        return torch.max(diff).values
+
     def forward(self, input):
         """
         :param input: dict of input with keys of:
@@ -88,6 +95,7 @@ class SiamMask(nn.Module):
         search = input['search']
         reverse_template = input['template']
         reverse_search = input['reverse_search']
+        print('Template type: {}'.format(template))
         # if self.training:
         #     label_cls = input['label_cls']
         #     label_loc = input['label_loc']
