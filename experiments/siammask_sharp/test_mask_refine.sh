@@ -1,5 +1,5 @@
 #if [ -z "$4" ]
-if [ $# -lt 5 ]
+if [ $# -lt 4 ]
   then
     echo "Need input parameter!"
     echo "Usage: bash `basename "$0"` \$CONFIG \$MODEL \$DATASET \$GPUID"
