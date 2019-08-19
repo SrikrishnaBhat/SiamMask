@@ -489,6 +489,7 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
         if len(object_ids) != len(annos_init):
             annos_init = annos_init*len(object_ids)
     object_num = len(object_ids)
+    object_step = int(1.0 / object_num)
     toc = 0
     pred_masks = np.zeros((object_num, len(image_files), annos[0].shape[0], annos[0].shape[1]))-1
     for obj_id, o_id in enumerate(object_ids):
@@ -515,7 +516,7 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
             toc += cv2.getTickCount() - tic
             if end_frame >= f >= start_frame:
                 # print("This fellow came here")
-                pred_masks[obj_id, f, :, :] = mask
+                pred_masks[obj_id, f, :, :] = mask * (obj_id + 1)
     toc /= cv2.getTickFrequency()
 
     # if len(annos) == len(image_files):
@@ -536,8 +537,13 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
         pred_mask_final = np.array(pred_masks)
         pred_mask_final = (np.argmax(pred_mask_final, axis=0).astype('uint8') + 1) * (
                 np.max(pred_mask_final, axis=0) > state['p'].seg_thr).astype('uint8')
+        COLORS = np.random.randint(128, 255, size=(object_num, 3), dtype="uint8")
+        COLORS = np.vstack([[0, 0, 0], COLORS]).astype("uint8")
+        mask = COLORS[pred_mask_final]
         for i in range(pred_mask_final.shape[0]):
-            cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'), (pred_mask_final[i]*255).astype(np.uint8))
+            # cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'), (pred_mask_final[i]*255).astype(np.uint8))
+            cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'),
+                        (mask[i]).astype(np.uint8))
 
     if args.visualization:
         pred_mask_final = np.array(pred_masks)
