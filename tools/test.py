@@ -543,7 +543,7 @@ def track_vos(model, video, hp=None, mask_enable=False, refine_enable=False, mot
         for i in range(pred_mask_final.shape[0]):
             # cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'), (pred_mask_final[i]*255).astype(np.uint8))
             cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'),
-                        (mask[i]).astype(np.uint8))
+                        cv2.cvtColor((mask[i]).astype(np.uint8), cv2.COLOR_BGR2GRAY))
 
     if args.visualization:
         pred_mask_final = np.array(pred_masks)
