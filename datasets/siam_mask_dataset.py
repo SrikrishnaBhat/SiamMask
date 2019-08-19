@@ -591,8 +591,10 @@ class DataSets(Dataset):
         reverse_search_box = toBBox(reverse_search_image, reverse_search[1])
         print('Template image shape: {}'.format(template_image.shape))
         print('Template box: {}'.format(template_box))
+        np.save('template_image_{}.npy'.format(index), template_image)
 
         template, _, _ = self.template_aug(template_image, template_box, self.template_size, gray=gray)
+        np.save('template_image_boxed_{}.npy'.format(index), template)
         reverse_template, _, _ = self.template_aug(reverse_template_image,
                                                    reverse_template_box,
                                                    self.template_size,
