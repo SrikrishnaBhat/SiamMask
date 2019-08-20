@@ -566,8 +566,6 @@ class DataSets(Dataset):
             reverse_search_mask = center_crop(reverse_search_mask, self.crop_size)
 
         def toBBox(image, shape):
-            print('template_shape: {}'.format(shape))
-            print('Image shape: {}'.format(image.shape))
             imh, imw = image.shape[:2]
             if len(shape) == 4:
                 w, h = shape[2]-shape[0], shape[3]-shape[1]
@@ -589,17 +587,12 @@ class DataSets(Dataset):
         reverse_template_box = toBBox(reverse_template_image, reverse_template[1])
         search_box = toBBox(search_image, search[1])
         reverse_search_box = toBBox(reverse_search_image, reverse_search[1])
-        print('Template image shape: {}'.format(template_image.shape))
-        print('Template box: {}'.format(template_box))
-        np.save('template_image_{}.npy'.format(index), template_image)
 
         template, _, _ = self.template_aug(template_image, template_box, self.template_size, gray=gray)
-        np.save('template_image_boxed_{}.npy'.format(index), template)
         reverse_template, _, _ = self.template_aug(reverse_template_image,
                                                    reverse_template_box,
                                                    self.template_size,
                                                    gray=gray)
-        print('Template shape after transform: {}'.format(template.shape))
         search, bbox, mask = self.search_aug(search_image, search_box, self.search_size, gray=gray, mask=search_mask)
         reverse_search, reverse_bbox, reverse_mask = self.search_aug(reverse_search_image,
                                                                      reverse_search_box,

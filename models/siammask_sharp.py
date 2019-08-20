@@ -112,6 +112,7 @@ class SiamMask(nn.Module):
 
         rpn_pred_cls, rpn_pred_loc, rpn_pred_mask, template_feature, search_feature = \
             self.run(template, search, softmax=self.training)
+
         rpn_reverse_pred_cls, rpn_reverse_pred_loc, rpn_reverse_pred_mask, reverse_template_feature, \
             reverse_search_feature = self.run(reverse_template, reverse_search, softmax=self.training)
 
@@ -135,49 +136,13 @@ class SiamMask(nn.Module):
                                           rpn_reverse_pred_cls,
                                           rpn_reverse_pred_mask,
                                           reverse_template_feature, reverse_search_feature]
-            print('template shape: {}'.format(template.shape))
-            print('search shape: {}'.format(search.shape))
-            print('rpn_pred_cls shape: {}'.format(rpn_pred_cls.shape))
+            print('label_loc shape: {}'.format(label_loc.shape))
             print('rpn_pred_loc shape: {}'.format(rpn_pred_loc.shape))
-            print('rpn_pred_mask shape: {}'.format(rpn_pred_mask.shape))
-            print('label_cls shape: {}'.format(label_cls.shape))
-            print('label_loc shape: {}'.format(lable_loc_weight.shape))
-            print('label_mask shape: {}'.format(label_mask.shape))
-            print('label_mask_weight shape: {}'.format(label_mask_weight.shape))
+            np.save('label_loc.npy', label_loc)
+            np.save('pred_loc.npy', rpn_pred_loc)
+            np.save('search.npy', search)
+            best_mask = self.get_best_loc(rpn_pred_loc, label_loc)
 
-            def center2corner(center):
-                """
-                :param center: Center or np.array 4*N
-                :return: Corner or np.array 4*N
-                """
-                if isinstance(center, Center):
-                    x, y, w, h = center
-                    return Corner(x - w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5)
-                else:
-                    x, y, w, h = center[0], center[1], center[2], center[3]
-                    x1 = x - w * 0.5
-                    y1 = y - h * 0.5
-                    x2 = x + w * 0.5
-                    y2 = y + h * 0.5
-                    return x1, y1, x2, y2
-
-            def toBBox(image, shape):
-                imh, imw = image.shape[:2]
-                if len(shape) == 4:
-                    w, h = shape[2] - shape[0], shape[3] - shape[1]
-                else:
-                    w, h = shape
-                context_amount = 0.5
-                exemplar_size = self.template_size  # 127
-                wc_z = w + context_amount * (w + h)
-                hc_z = h + context_amount * (w + h)
-                s_z = np.sqrt(wc_z * hc_z)
-                scale_z = exemplar_size / s_z
-                w = w * scale_z
-                h = h * scale_z
-                cx, cy = imw // 2, imh // 2
-                bbox = center2corner(Center(cx, cy, w, h))
-                return bbox
 
             # Original
             rpn_loss_cls, rpn_loss_loc, rpn_loss_mask, iou_acc_mean, iou_acc_5, iou_acc_7 = \
