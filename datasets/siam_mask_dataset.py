@@ -636,7 +636,7 @@ class DataSets(Dataset):
         reverse_mask = (np.expand_dims(reverse_mask, axis=0) > 0.5) * 2 - 1  # 1*H*W
         np.save('template_{}.npy'.format(index), template)
         np.save('delta_{}.npy'.format(index), delta)
-        np.save('cls_{}.npy'.format(index), delta)
+        np.save('cls_{}.npy'.format(index), cls)
 
 
         return template, search, cls, delta, delta_weight, np.array(bbox, np.float32), \
