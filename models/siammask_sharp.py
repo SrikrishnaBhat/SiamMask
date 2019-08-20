@@ -82,7 +82,7 @@ class SiamMask(nn.Module):
         pred_loc = pred_loc.view(b, 4, -1, sh, sw)
         diff = (pred_loc - label_loc).abs()
 
-        return torch.max(diff).values
+        return torch.max(diff).values.data
 
     def forward(self, input):
         """
