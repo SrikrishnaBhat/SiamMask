@@ -136,8 +136,8 @@ class SiamMask(nn.Module):
                                           rpn_reverse_pred_cls,
                                           rpn_reverse_pred_mask,
                                           reverse_template_feature, reverse_search_feature]
-            print('label_loc shape: {}'.format(label_loc.shape))
-            print('rpn_pred_loc shape: {}'.format(rpn_pred_loc.shape))
+            print('label_loc shape: {}'.format(label_loc.data))
+            print('rpn_pred_loc shape: {}'.format(rpn_pred_loc.data))
             np.save('label_loc.npy', label_loc.data)
             np.save('pred_loc.npy', rpn_pred_loc.data)
             np.save('search.npy', search.data)
